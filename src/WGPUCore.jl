@@ -1,6 +1,8 @@
 module WGPUCore
 
 using CEnum
+using Infiltrator
+using Tracy
 
 include("utils.jl")
 include("log.jl")

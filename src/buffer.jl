@@ -54,7 +54,7 @@ function mapWrite(gpuBuffer::GPUBuffer, data)
         @cfunction(bufferCallback, Cvoid, (WGPUBufferMapAsyncStatus, Ptr{Cvoid}))
 
     wgpuBufferMapAsync(
-        gpuBuffer.internal,
+        gpuBuffer.internal[],
         WGPUMapMode_Write,
         0,
         bufferSize,
@@ -81,18 +81,18 @@ end
 
 function createBuffer(label, gpuDevice, bufSize, usage, mappedAtCreation)
     labelPtr = toCString(label)
-    desc = cStruct(
+    @tracepoint "bufferDesc" desc = cStruct(
         WGPUBufferDescriptor;
         label = labelPtr,
         size = bufSize,
         usage = getEnum(WGPUBufferUsage, usage),
         mappedAtCreation = mappedAtCreation,
     )
-    buffer = GC.@preserve labelPtr wgpuDeviceCreateBuffer(
+    @tracepoint "CreateBuffer" buffer = wgpuDeviceCreateBuffer(
         gpuDevice.internal[],
         desc |> ptr,
-    ) |> Ref
-    GPUBuffer(label, buffer, gpuDevice, bufSize, usage, desc)
+    )
+    GPUBuffer(label, buffer |> Ref, gpuDevice, bufSize, usage, desc)
 end
 
 function createBufferWithData(gpuDevice, label, data, usage)

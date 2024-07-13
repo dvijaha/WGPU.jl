@@ -6,3 +6,4 @@
 /deps/cocoa.dylib
 /deps/*.tar.gz
 .DS_Store
+*.wgsl
